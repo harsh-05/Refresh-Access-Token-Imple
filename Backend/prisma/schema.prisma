@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -18,14 +18,13 @@ model User {
   id Int      @id @default(autoincrement())
   email String    @unique
   password String
-
   token RefreshToken[]
 }
 
 model RefreshToken {
     id    Int      @id @default(autoincrement())
     userId Int 
-    token String  
+    token String  @unique 
 
     user User @relation(fields: [userId], references: [id]) 
 }
