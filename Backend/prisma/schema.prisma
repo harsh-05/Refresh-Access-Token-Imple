@@ -23,10 +23,10 @@ model User {
 
 model RefreshToken {
     id    Int      @id @default(autoincrement())
-    userId Int 
+    userEmail String 
     token String  @unique 
 
-    user User @relation(fields: [userId], references: [id]) 
+    user User @relation(fields: [userEmail], references: [email]) 
 }
 
 
