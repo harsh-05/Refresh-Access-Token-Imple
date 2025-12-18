@@ -25,6 +25,7 @@ model RefreshToken {
     id    Int      @id @default(autoincrement())
     userEmail String 
     token String  @unique 
+    isValid Boolean
 
     user User @relation(fields: [userEmail], references: [email]) 
 }

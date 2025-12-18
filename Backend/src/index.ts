@@ -16,7 +16,8 @@ const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
 const app = express();
 
-const saltround = 5;
+app.use(express.json());
+
 
 
 app.use(cors({ origin: 'http://localhost:3000' }));
@@ -26,7 +27,13 @@ app.post("/signup", async (req, res) => {
 
     const email = req.body.email;
     const password = req.body.password;
+
+    if (!email || !password) {
+        res.status(400).json({ msg: "Email or password is required!!" });
+        return;
+    }
     
+    const saltround = 5;
 
     const hashedpassword = await bcrypt.hash(password, saltround);
 
@@ -94,7 +101,8 @@ app.post("/signin", async (req, res) => {
         const dbRes = await prisma.refreshToken.create({
             data: {
                 userEmail: email,
-                token: hashedRefreshToken
+                token: hashedRefreshToken,
+                isValid: true
             }
         })
 
@@ -116,12 +124,44 @@ app.post("/signin", async (req, res) => {
 
 })
 
-app.post("/refresh", (req, res) => {
-    //1. Extract the refresh-token from the cookie, try to match with the redis cache first.
-    //2. If cache fails then go for the db, check there.
-    //3. If found and still valid then generate the new refresh-token and access-token.
+app.post("/refresh", async (req, res) => {
+    //1. Extract the refresh-token from the cookie, try to validate the token using jwt verify. If success
+    //2. Hash it using sha256 and compare the store one first in the redis cache first.
+    //3. If cache fails then go for the db, check there. If found
+    //4. then generate the new refresh-token and access-token.
+    //5. store the refresh-token hash into the db and invalidate the old one.
+    //6. send the refresh-token in cookie and access-token into the json body.
 
+
+    const userRefreshToken = req.cookies.refreshToken;
+    const userTokenHashed = crypto.createHash("sha256").update(userRefreshToken).digest('hex');
+    if (!userRefreshToken) {
+        res.status(401).json({ msg: "Token not found !" });
+        return;
+    }
     
+
+    try {
+        const decodedToken = jwt.verify(userRefreshToken, JWT_Secret);  
+    } catch (e) {
+        if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError) {
+            res.status(401).json({ msg: "Token expired or Invalid!", e});
+        } 
+    }
+
+    try { 
+        const updateRes = prisma.refreshToken.update({
+            where: {
+                token: userTokenHashed,
+                isValid: true   
+            }, data: {
+                isValid: false
+            }
+        })
+    } catch (e) {
+        
+    }
+
 })
 
 // Later we can also define the signup routes to handle the signup process into the system.
