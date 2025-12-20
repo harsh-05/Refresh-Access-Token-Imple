@@ -149,18 +149,59 @@ app.post("/refresh", async (req, res) => {
         } 
     }
 
+
+    let updateRes = null;
     try { 
-        const updateRes = prisma.refreshToken.update({
+         updateRes = await prisma.refreshToken.update({
             where: {
                 token: userTokenHashed,
                 isValid: true   
             }, data: {
                 isValid: false
+            }, select: {
+                userEmail: true
             }
         })
+
     } catch (e) {
-        
+        res.status(401).json({ msg: "Token expired or Invalid!", e });
     }
+
+    
+    if (!updateRes) {
+        res.status(401).json({ msg: "Token expired or Invalid!" });
+        return;
+    } 
+    const refreshToken = jwt.sign({ email: updateRes.userEmail }, JWT_Secret, { expiresIn: "7d" });
+    const accessToken = jwt.sign({ email: updateRes.userEmail }, JWT_Secret, { expiresIn: "15m" });
+
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+    try {
+        const dbRes = await prisma.refreshToken.create({
+            data: {
+                userEmail: updateRes.userEmail,
+                token: hashedRefreshToken,
+                isValid: true
+            }
+        })
+
+        const maxAge = 7 * 24 * 60 * 60 * 1000;
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: environment === 'production',
+            sameSite: environment === 'production' ? 'none' : 'lax',
+            maxAge: maxAge
+        });
+
+        res.json({ accessToken, msg: "Refreshing Tokens Successful !" })
+        return;
+    } catch (e) {
+        res.status(401).json({ msg: "Refresh Token creation failed, try login again!", e });
+        return;
+    }
+
 
 })
 
