@@ -6,6 +6,7 @@ import { Prisma, PrismaClient } from './generated/prisma/client.js'
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import crypto from "node:crypto"
+import cookieParser from 'cookie-parser';
 
 const JWT_Secret = process.env.JWT_SECRET || "somesecret";
 const environment = process.env.ENVIRONMENT || "Development";
@@ -76,8 +77,7 @@ app.post("/signin", async (req, res) => {
             email
         },
         select: {
-            email,
-            password
+            password: true
         }
     })
     if (!dbPassword) {
@@ -124,7 +124,7 @@ app.post("/signin", async (req, res) => {
 
 })
 
-app.post("/refresh", async (req, res) => {
+app.post("/refresh", cookieParser(), async (req, res) => {
     //1. Extract the refresh-token from the cookie, try to validate the token using jwt verify. If success
     //2. Hash it using sha256 and compare the store one first in the redis cache first.
     //3. If cache fails then go for the db, check there. If found
