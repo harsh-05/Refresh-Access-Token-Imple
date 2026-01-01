@@ -7,7 +7,7 @@ export default function Login() {
   }>({});
   return (
     <div className="bg-gray-50 h-screen flex justify-center items-center">
-      <div className="w-[24rem] h-[80%] rounded-md border border-neutral-200 shadow p-4">
+      <div className="w-[24rem] h-[80%] rounded-md border border-neutral-200 shadow p-4 bg-white">
         <h1 className="text-5xl mb-4">Login</h1>
         <p className="text-sm mb-8">Hi, Welcome Back &#9995;</p>
         <div>
@@ -39,11 +39,36 @@ export default function Login() {
             Login with Google
           </button>
 
-          <div className="flex items-center min-w-full">
+          <div className="flex items-center min-w-full mb-8">
             <div className=" grow border border-gray-200"></div>
-            <span className="mx-4 text-xs shrink text-neutral-400">or Login with Email</span>
+            <span className="mx-4 text-xs shrink text-neutral-400">
+              or Login with Email
+            </span>
             <div className=" grow border-t border border-gray-200"></div>
           </div>
+
+          <div className="mb-4">
+            <label htmlFor="email">Email</label>
+            <input
+              className="min-w-full mt-2 p-2 border border-neutral-300 rounded-md placeholder:text-sm focus:outline-neutral-200"
+              id="email"
+              type="email"
+              placeholder="E.g. johndoe@email.com"
+            />
+          </div>
+          <div className="mb-8">
+            <label htmlFor="email">Password</label>
+            <input
+              className="min-w-full mt-2 p-2 border border-neutral-300 rounded-md placeholder:text-sm focus:outline-neutral-200"
+              id="password"
+              type="password"
+              placeholder="Enter Password"
+            />
+                  </div>
+                  
+                  <button className="min-w-full p-2 bg-blue-400 shadow rounded-md text-neutral-800">
+                      Login
+                  </button>
         </div>
       </div>
     </div>
