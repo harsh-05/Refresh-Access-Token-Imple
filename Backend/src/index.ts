@@ -21,7 +21,7 @@ app.use(express.json());
 
 
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 app.post("/signup", async (req, res) => {
     //1. get the credentials and store them in to db, make sure to hash the password.
