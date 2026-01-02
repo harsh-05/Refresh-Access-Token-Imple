@@ -11,7 +11,7 @@ export default function Login() {
         <h1 className="text-5xl mb-4">Login</h1>
         <p className="text-sm mb-8">Hi, Welcome Back &#9995;</p>
         <div>
-          <button className="border border-neutral-300 rounded min-w-full h-10 mb-10 flex items-center justify-center gap-2">
+          <button className="border border-neutral-300 rounded min-w-full h-10 mb-10 flex items-center justify-center gap-2 hover:bg-neutral-100">
             <svg
               className="size-5 inline"
               xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +66,7 @@ export default function Login() {
             />
                   </div>
                   
-                  <button className="min-w-full p-2 bg-blue-400 shadow rounded-md text-neutral-800">
+                  <button className="min-w-full p-2 bg-blue-400 hover:bg-blue-600 shadow rounded-md text-neutral-200 hover:text-neutral-100">
                       Login
                   </button>
         </div>
