@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { registerCallback } from "../config/api";
 
-const AuthContext = createContext < {accessToken:string | undefined, setAccesToken: Function}  | undefined>(undefined);
+export const AuthContext = createContext < {accessToken:string | undefined, setAccesToken: Function}  | undefined>(undefined);
 
 export function AuthProvider({ children }: {children:React.ReactNode}) {
     const [accessToken, setAccesToken] = useState<string | undefined>(undefined); 

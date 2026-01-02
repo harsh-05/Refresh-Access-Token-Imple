@@ -1,10 +1,34 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { api, setAccessToken } from "./config/api";
+import { AuthContext} from "./Components/AuthContext";
+import { useNavigate } from "react-router";
 
 export default function Login() {
   const [authCred, setAuthCred] = useState<{
     email?: string;
     password?: string;
   }>({});
+
+  useEffect(() => {
+          console.log(authCred);
+      }, [authCred]);
+
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  async function handlesubmit(e: React.MouseEvent) {
+    try {
+      const res = await api.post("/signin", authCred);
+      if (res.data.accessToken) {
+        auth?.setAccesToken(res.data.accessToken);
+        console.log(res);
+        setAccessToken(res.data.accessToken);
+        navigate("/dashboard");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
   return (
     <div className="bg-gray-50 h-screen flex justify-center items-center">
       <div className="w-[24rem] h-[80%] rounded-md border border-neutral-200 shadow p-4 bg-white">
@@ -50,6 +74,9 @@ export default function Login() {
           <div className="mb-4">
             <label htmlFor="email">Email</label>
             <input
+              onChange={(e) => {
+                setAuthCred((prev) => ({...prev, email: e.target.value  }));
+              }}
               className="min-w-full mt-2 p-2 border border-neutral-300 rounded-md placeholder:text-sm focus:outline-neutral-200"
               id="email"
               type="email"
@@ -57,18 +84,23 @@ export default function Login() {
             />
           </div>
           <div className="mb-8">
-            <label htmlFor="email">Password</label>
+            <label htmlFor="password">Password</label>
             <input
+              onChange={(e) => {
+                setAuthCred((prev) => ({...prev, password: e.target.value }));
+              }}
               className="min-w-full mt-2 p-2 border border-neutral-300 rounded-md placeholder:text-sm focus:outline-neutral-200"
               id="password"
               type="password"
               placeholder="Enter Password"
             />
-                  </div>
-                  
-                  <button className="min-w-full p-2 bg-blue-400 hover:bg-blue-600 shadow rounded-md text-neutral-200 hover:text-neutral-100">
-                      Login
-                  </button>
+          </div>
+
+          <button
+            onClick={handlesubmit}
+            className="min-w-full p-2 bg-blue-400 hover:bg-blue-600 shadow rounded-md text-neutral-200 hover:text-neutral-100">
+            Login
+          </button>
         </div>
       </div>
     </div>

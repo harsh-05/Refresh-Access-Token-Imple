@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http:localhost:3000/";
+const baseURL = "http://localhost:3000";
 
 let _accessToken: string | null = null;
 
@@ -16,14 +16,14 @@ export function setAccessToken(token: string) {
 }
 
 export const api = axios.create({
-    baseURL:baseURL,
-    timeout: 2000
+    baseURL:baseURL
 });
 
 
 api.interceptors.request.use((config) => {
     // we have to add the accessToken before the every request.....
-    if (_accessToken) config.headers.Authorization = _accessToken;
+    if (_accessToken)
+        config.headers.Authorization = _accessToken;
     return config;
 }, (error)=>Promise.reject(error));
 
