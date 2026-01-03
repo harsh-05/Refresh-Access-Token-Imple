@@ -13,7 +13,7 @@ async function main() {
     // Here we have to hash the password 
     const saltround = 5;
     const hashedpassword1 = await bcrypt.hash('12345', saltround);
-      const hashedpassword2 = await bcrypt.hash('123456', saltround);
+    const hashedpassword2 = await bcrypt.hash('123456', saltround);
     const users = await prisma.user.createManyAndReturn({
         data: [{ email: "user1@gmail.com", password: hashedpassword1 }, { email: "user2@gmail.com", password: hashedpassword2 }]
     });
