@@ -3,3 +3,7 @@ dist
 
 .gitignore
 tsconfig.tsbuildinfo
+
+src/generated
+
+generated
