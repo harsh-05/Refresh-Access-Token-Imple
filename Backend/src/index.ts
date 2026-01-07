@@ -8,8 +8,12 @@ import cors from 'cors';
 import crypto from "node:crypto"
 import cookieParser from 'cookie-parser';
 
-const JWT_Secret = process.env.JWT_SECRET || "somesecret";
-const environment = process.env.ENVIRONMENT || "Development";
+const JWT_Secret = process.env.JWT_SECRET ;
+const environment = process.env.ENVIRONMENT ;
+
+if (!JWT_Secret || !environment) {
+    throw "Environment variables are not found!!";
+}
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
@@ -206,6 +210,7 @@ app.post("/refresh", cookieParser(), async (req, res) => {
 })
 
 // Later we can also define the signup routes to handle the signup process into the system.
+// Made a very small change in a index file to see the build in dockerfile.....
 
 
 

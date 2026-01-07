@@ -10,9 +10,7 @@ COPY tsconfig*.json ./
 COPY prisma.config*.ts ./
 COPY ./prisma ./prisma
 
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-
+ARG DATABASE_URL="somelocalstring"
 RUN  npx prisma generate
 
 COPY ./src ./src    
