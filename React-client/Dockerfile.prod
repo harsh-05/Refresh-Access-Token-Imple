@@ -1,0 +1,1 @@
+# Here we want a minimum sized image, we can do this via the multistage builds and alpine or small base image.
