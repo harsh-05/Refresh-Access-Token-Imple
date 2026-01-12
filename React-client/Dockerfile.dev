@@ -1,1 +1,2 @@
-# here we just want to start the vite server with necessary dependencies installed and can able to support the hot-reloading.
+# Here we have to write this dockerfile to support the hot-reloading, either with the WATCH functionality or bind mounts in Compose.
+
