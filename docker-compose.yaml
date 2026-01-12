@@ -1,0 +1,6 @@
+# we have to compare the use of WATCH functionality with the bind mounts in Compose for hot-reloading, choose the best.
+
+Services: 
+    backend: 
+        build: ./Backend/Dockerfile.dev
+        ports: 3000:3000
