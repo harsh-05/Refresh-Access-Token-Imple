@@ -1,2 +1,11 @@
 # Here we have to write this dockerfile to support the hot-reloading, either with the WATCH functionality or bind mounts in Compose.
 
+FROM  node:20-alpine
+
+WORKDIR app/
+
+COPY ./package*.json ./
+
+RUN npm install
+
+EXPOSE 5173
