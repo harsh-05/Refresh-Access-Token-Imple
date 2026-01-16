@@ -11,13 +11,14 @@ services:
             - ./Backend/tsconfig.json:/app/tsconfig.json
             - ./Backend/prisma.config.ts:/app/prisma.config.ts
         ports: 
-            - 3000:3000
+            - "3000:3000"
         environment: 
-            - DATABASE_URL=postgresql://postgres:12345@localhost:5433/postgres
+            - DATABASE_URL=postgresql://postgres:12345@db:5432/postgres
             - JWT_SECRET=somethingMoreSecure
             - ENVIRONMENT=development
         depends_on: 
-            - db
+             db:
+                condition: service_healthy
     
     
     frontend: 
@@ -32,7 +33,7 @@ services:
             - WDS_SOCKETPORT=0
 
         ports:
-            - 5173:5173
+            - "5173:5173"
         stdin_open: true
         tty: true
 
@@ -44,6 +45,12 @@ services:
 
         ports: 
             - 5433:5432
+
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
 
     
