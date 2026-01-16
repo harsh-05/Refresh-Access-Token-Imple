@@ -1,6 +1,51 @@
 # we have to compare the use of WATCH functionality with the bind mounts in Compose for hot-reloading, choose the best.
 
-Services: 
+services: 
     backend: 
-        build: ./Backend/Dockerfile.dev
-        ports: 3000:3000
+        build: 
+            context: ./Backend/
+            dockerfile: Dockerfile.dev
+        volumes: 
+            - ./Backend/src:/app/src
+            - ./Backend/prisma:/app/prisma
+            - ./Backend/tsconfig.json:/app/tsconfig.json
+            - ./Backend/prisma.config.ts:/app/prisma.config.ts
+        ports: 
+            - 3000:3000
+        environment: 
+            - DATABASE_URL=postgresql://postgres:12345@localhost:5433/postgres
+            - JWT_SECRET=somethingMoreSecure
+            - ENVIRONMENT=development
+        depends_on: 
+            - db
+    
+    
+    frontend: 
+        build: 
+            context: ./React-client/
+            dockerfile: Dockerfile.dev
+        volumes: 
+            - ./React-client/src:/app/src
+            - ./React-client/public:/app/public
+        environment: 
+            - CHOKIDAR_USEPOLLING=true
+            - WDS_SOCKETPORT=0
+
+        ports:
+            - 5173:5173
+        stdin_open: true
+        tty: true
+
+    db: 
+        image: postgres:18-alpine
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=12345
+
+        ports: 
+            - 5433:5432
+
+
+    
+
+    
