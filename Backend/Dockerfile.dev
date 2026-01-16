@@ -7,9 +7,10 @@ COPY prisma ./prisma/
 
 RUN npm install
 
-ARG DATABASE_URL="localdbstringNOTREQUIRED"
-RUN npx prisma generate
+# This is not needed, since prisma no longer generate the client into the node_modules, so we can generate the client on runtime.
+# ARG DATABASE_URL="localdbstringNOTREQUIRED"
+# RUN npx prisma generate
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "docker:start"]
