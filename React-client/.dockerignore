@@ -1,0 +1,9 @@
+node_modules
+dist
+
+.dockerignore
+.git
+.gitignore
+.env
+Dockerfile.dev
+Dockerfile.prod
