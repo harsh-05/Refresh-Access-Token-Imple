@@ -4,9 +4,9 @@ const baseURL = "http://localhost:3000";
 
 let _accessToken: string | null = null;
 
-let _handleRefresh: ((token: string)=>void) | null = null;
+let _handleRefresh: ((token: string | undefined)=>void) | null = null;
 
-export function registerCallback(setState: ((token:string)=>void)) {
+export function registerCallback(setState: ((token: string | undefined)=>void)) {
     _handleRefresh = setState;
 }
 
@@ -28,24 +28,57 @@ api.interceptors.request.use((config) => {
 }, (error)=>Promise.reject(error));
 
 
+
+let isRefreshing = false;
+let pendingRequest: any[] = [];
+
+function processPendingRequests(token:string| null, error:unknown | null) {
+    if (token) {
+        pendingRequest.forEach(resolve=>(resolve(token)))
+    } else {
+        pendingRequest.forEach(reject=>(reject(error)))
+    }
+}
+
 api.interceptors.response.use((response) => response, async (error) => {
     const originalRequest = error.config;
 
     if (!originalRequest._retry && (error.response.code === 401 || error.response.code === 403)) {
 
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                pendingRequest.push({resolve, reject})
+            }).then((token) => {
+                originalRequest.header.Authorisation = token;
+                return api(originalRequest);
+            }).catch((error: Error) => {
+                return Promise.reject(error);
+            })
+        }
+
         originalRequest._retry = true;
+        isRefreshing = true;
         
         try{
-                const res = await axios.post(`${baseURL}refresh`, {}, { withCredentials: true });
+            const res = await axios.post(`${baseURL}refresh`, {}, { withCredentials: true });
             setAccessToken(res.data.accessToken);
             // here I have to set the context state also.....    
-            if (_accessToken && _handleRefresh)
-                _handleRefresh(_accessToken)
-            
+            if (_accessToken && _handleRefresh) {
+                _handleRefresh(_accessToken);  
+                processPendingRequests(_accessToken, null);
+            }
+
             return api(originalRequest);
                
         } catch (e) {
+
+            processPendingRequests(null, e);
+            //here we have to clear the react state too...
+            if(_handleRefresh)
+            _handleRefresh(undefined)
             return Promise.reject(e);
+        } finally {
+            isRefreshing = false;
         }
        
     }
