@@ -9,12 +9,22 @@ export default function Login() {
     password?: string;
   }>({});
 
-  useEffect(() => {
-          console.log(authCred);
-      }, [authCred]);
+  // useEffect(() => {
+  //         console.log(authCred);
+  //     }, [authCred]);
+
+  
 
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("came of effect!");
+    if (auth?.accessToken) {
+      console.log("auth hai !!");
+      navigate("/dashboard");
+    }
+  }, [auth?.accessToken]);
 
   async function handlesubmit(e: React.MouseEvent) {
     try {
@@ -23,7 +33,7 @@ export default function Login() {
         auth?.setAccesToken(res.data.accessToken);
         console.log(res);
         setAccessToken(res.data.accessToken);
-        navigate("/dashboard");
+       // navigate("/dashboard");
       }
     } catch (e) {
       console.log(e);
