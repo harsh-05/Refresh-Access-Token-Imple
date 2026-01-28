@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { api, setAccessToken } from "./config/api";
+import { _setAccessToken, api } from "./config/api";
 import { AuthContext} from "./Components/AuthContext";
 import { useNavigate } from "react-router";
 
@@ -28,11 +28,11 @@ export default function Login() {
 
   async function handlesubmit(e: React.MouseEvent) {
     try {
-      const res = await api.post("/signin", authCred);
+      const res = await api.post("/signin", authCred, {withCredentials: true});
       if (res.data.accessToken) {
         auth?.setAccesToken(res.data.accessToken);
         console.log(res);
-        setAccessToken(res.data.accessToken);
+        _setAccessToken(res.data.accessToken);
        // navigate("/dashboard");
       }
     } catch (e) {

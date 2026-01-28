@@ -8,8 +8,8 @@ import cors from 'cors';
 import crypto from "node:crypto"
 import cookieParser from 'cookie-parser';
 
-const JWT_Secret = process.env.JWT_SECRET ;
-const environment = process.env.ENVIRONMENT ;
+const JWT_Secret = process.env.JWT_SECRET;
+const environment = process.env.ENVIRONMENT;
 
 if (!JWT_Secret || !environment) {
     throw "Environment variables are not found!!";
@@ -25,7 +25,7 @@ app.use(express.json());
 
 
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 app.post("/signup", async (req, res) => {
     //1. get the credentials and store them in to db, make sure to hash the password.
@@ -37,7 +37,7 @@ app.post("/signup", async (req, res) => {
         res.status(400).json({ msg: "Email or password is required!!" });
         return;
     }
-    
+
     const saltround = 5;
 
     const hashedpassword = await bcrypt.hash(password, saltround);
@@ -62,7 +62,7 @@ app.post("/signup", async (req, res) => {
             return;
         }
     }
-    
+
 
 })
 
@@ -88,9 +88,9 @@ app.post("/signin", async (req, res) => {
         res.status(401).json({ msg: "Authentication Failed ! Not found" });
         return;
     }
-    
+
     const passCorrect = await bcrypt.compare(password, dbPassword.password);
-    
+
     if (!passCorrect) {
         res.status(401).json({ msg: "Authentication Failed ! Password Incorrect" });
         return;
@@ -100,7 +100,7 @@ app.post("/signin", async (req, res) => {
     const accessToken = jwt.sign({ email }, JWT_Secret, { expiresIn: "15m" });
 
     const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    
+
     try {
         const dbRes = await prisma.refreshToken.create({
             data: {
@@ -119,10 +119,10 @@ app.post("/signin", async (req, res) => {
             maxAge: maxAge
         });
 
-        res.json({accessToken, msg: "Successfully signed In !"})
+        res.json({ accessToken, msg: "Successfully signed In !" })
         return;
     } catch (e) {
-        res.status(401).json({ msg: "Authentication failed !" , e});
+        res.status(401).json({ msg: "Authentication failed !", e });
         return;
     }
 
@@ -138,28 +138,29 @@ app.post("/refresh", cookieParser(), async (req, res) => {
 
 
     const userRefreshToken = req.cookies.refreshToken;
-    const userTokenHashed = crypto.createHash("sha256").update(userRefreshToken).digest('hex');
     if (!userRefreshToken) {
         res.status(401).json({ msg: "Token not found !" });
         return;
     }
-    
+    const userTokenHashed = crypto.createHash("sha256").update(userRefreshToken).digest('hex');
+
+
 
     try {
-        const decodedToken = jwt.verify(userRefreshToken, JWT_Secret);  
+        const decodedToken = jwt.verify(userRefreshToken, JWT_Secret);
     } catch (e) {
         if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError) {
-            res.status(401).json({ msg: "Token expired or Invalid!", e});
-        } 
+           return res.status(401).json({ msg: "Token expired or Invalid!", e });
+        }
     }
 
 
     let updateRes = null;
-    try { 
-         updateRes = await prisma.refreshToken.update({
+    try {
+        updateRes = await prisma.refreshToken.update({
             where: {
                 token: userTokenHashed,
-                isValid: true   
+                isValid: true
             }, data: {
                 isValid: false
             }, select: {
@@ -168,16 +169,16 @@ app.post("/refresh", cookieParser(), async (req, res) => {
         })
 
     } catch (e) {
-        res.status(401).json({ msg: "Token expired or Invalid!", e });
+       return res.status(401).json({ msg: "Token expired or Invalid!", e });
     }
 
-    
+
     if (!updateRes) {
         res.status(401).json({ msg: "Token expired or Invalid!" });
         return;
-    } 
-    const refreshToken = jwt.sign({ email: updateRes.userEmail }, JWT_Secret, { expiresIn: "7d" });
-    const accessToken = jwt.sign({ email: updateRes.userEmail }, JWT_Secret, { expiresIn: "15m" });
+    }
+    const refreshToken = jwt.sign({ email: updateRes.userEmail }, JWT_Secret, { expiresIn: '7d' });
+    const accessToken = jwt.sign({ email: updateRes.userEmail }, JWT_Secret, { expiresIn: '15m' });
 
     const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
 
@@ -214,7 +215,7 @@ app.post("/refresh", cookieParser(), async (req, res) => {
 
 
 
-
+//needs to be good changes.
 
 app.listen(3000, () => {
     console.log("server is running !!");
