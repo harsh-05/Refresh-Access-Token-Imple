@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:3000";
+export const baseURL = "http://localhost:3000";
 
 let _accessToken: string | null = null;
 
@@ -11,12 +11,13 @@ export function registerCallback(setState: ((token: string | undefined)=>void)) 
 }
 
 
-export function setAccessToken(token: string) {
+export function _setAccessToken(token: string) {
     _accessToken = token;
 }
 
 export const api = axios.create({
-    baseURL:baseURL
+    baseURL: baseURL,
+    withCredentials: true
 });
 
 
@@ -60,8 +61,8 @@ api.interceptors.response.use((response) => response, async (error) => {
         isRefreshing = true;
         
         try{
-            const res = await axios.post(`${baseURL}refresh`, {}, { withCredentials: true });
-            setAccessToken(res.data.accessToken);
+            const res = await axios.post(`${baseURL}/refresh`, {}, { withCredentials: true });
+            _setAccessToken(res.data.accessToken);
             // here I have to set the context state also.....    
             if (_accessToken && _handleRefresh) {
                 _handleRefresh(_accessToken);  
