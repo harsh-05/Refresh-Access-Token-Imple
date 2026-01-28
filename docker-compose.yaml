@@ -16,6 +16,7 @@ services:
             - DATABASE_URL=postgresql://postgres:12345@db:5432/postgres
             - JWT_SECRET=somethingMoreSecure
             - ENVIRONMENT=development
+            - CHOKIDAR_USEPOLLING=true 
         depends_on: 
              db:
                 condition: service_healthy
